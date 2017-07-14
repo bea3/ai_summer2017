@@ -23,6 +23,45 @@ def found_goal(start, goal):
     return len(goal_state) == 0
 
 
+def apply_action(start, action):
+    variables = []
+    matches = dict()
+
+    for x in action["action"]:
+        if x.startswith("?"):
+            variables.append(x[1:])
+
+    for x in start:
+        if x[0] == "place" and "from" in variables and "from" not in matches.keys():
+            matches["from"] = x[1]
+        elif x[0] == "place" and "to" in variables and "to" not in matches.keys():
+            matches["to"] = x[1]
+        elif x[0] == "place" and "seller" in variables:
+            matches["seller"] = x[1]
+        elif x[0] == "agent" and "purchaser" in variables:
+            matches["purchaser"] = x[1]
+        elif x[0] in variables:
+            matches[x[0]] = x[1]
+
+    for x in action["add"]:
+        for ind, val in enumerate(x):
+            if val.startswith("?"):
+                variable_name = val[1:]
+                if variable_name in matches.keys():
+                    x[ind] = matches[variable_name]
+        start.append(x)
+
+    for x in action["delete"]:
+        for ind, val in enumerate(x):
+            if val.startswith("?"):
+                variable_name = val[1:]
+                if variable_name in matches.keys():
+                    x[ind] = matches[variable_name]
+        if x in start:
+            start.remove(x)
+    return start
+
+
 def generate_successor_states(start, actions):
     pass
 
@@ -37,12 +76,11 @@ def forward_planner(start_state, goal, actions, visited=None, debug=False):
     for a in actions.keys():
         action = actions[a]
         for key in action.keys():
-            if key == "conditions":
-                actions[a]["conditions"] = parse_list(actions[a]["conditions"])
-            elif key == "add":
-                actions[a]["add"] = parse_list(actions[a]["add"])
-            elif key == "delete":
-                actions[a]["delete"] = parse_list(actions[a]["delete"])
+            if key == "action":
+                actions[a]["action"] = parse(actions[a]["action"])
+            else:
+                actions[a][key] = parse_list(actions[a][key])
+
 
     if visited is None:
         visited = [start]
@@ -124,6 +162,7 @@ goal2 = [
 
 plan = forward_planner(start_state, goal, actions)
 print plan
+
 #
 # plan_with_states = forward_planner( start_state, goal, actions, debug=True)
 # print plan_with_states
