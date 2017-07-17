@@ -104,5 +104,5 @@ def unify(exp1, exp2):
 
 # unify( "?x", "Wilma")
 # unify( "(loves ?x ?x)", "(loves Wilma Fred)")
-# unify( "(loves (leftLegOf ?x) (rightLegOf Wilma))", "(loves (leftLegOf Wilma) (rightLegOf ?y))"")
+# print(unify( "(loves (leftLegOf ?x) (rightLegOf Wilma))", "(loves (leftLegOf Wilma) (rightLegOf ?y))"))
 # print(unify( '(father Barney ?x)', '(father Barney (son_of Barney))'))
